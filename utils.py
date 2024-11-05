@@ -55,7 +55,7 @@ def extractMetadata(xml_path):
     list_metadata = []
     for child in xmlTree.iter():
         tag = child.tag
-        # Each time loop hits <archdesc> or <c> tags, record the metadata descriptions gathered
+        # Each time loop hits a <c> tag, record the metadata descriptions gathered
         # thus far and start a new d_descs dictionary
         if tag == "c":
             list_metadata += [d_descs]
@@ -68,6 +68,13 @@ def extractMetadata(xml_path):
             d_descs[tag] = all_text
         else:
             continue
+
+    # If there are only top-level descriptions (fonds-level descriptions between <archdesc> tags), 
+    # we'll need to add them to the metadata list here (because they won't have been added earlier 
+    # because the for loop will never hit a <c> tag)
+    if len(list_metadata) == 0:
+        list_metadata += [d_descs]
+
     # Return the list of dictionaries with the extracted metadata descriptions stored as values
     # and the metadata fields (also the XML tag names) stored as keys
     return list_metadata
