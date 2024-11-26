@@ -22,7 +22,9 @@ This directory contains scikit-learn-based models for running trained multilabel
 
 ## ling_osc/
 This directory contains scikit-learn-based models for running trained multilabel token classifiers to identify gender biases in text.
-* `cc-rf_F-fasttext100_T-linglabels.joblib`: a scikit-multilearn [Classifier Chain](http://scikit.ml/api/skmultilearn.problem_transform.cc.html) of scikit-learn [Random Forests](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) trained to perform multilabel token classification on text represented with the 100-dimension custom FastText embeddings (see `custom_fasttext/fasttext_cbow_100d.model` above), assigning the **Linguistic** category of labels (*Gendered-Pronoun*, *Gendered-Role*, *Generalization*) to input text
+* `cc-rf_F-fasttext100_T-linglabels.joblib`: a scikit-multilearn [Classifier Chain](http://scikit.ml/api/skmultilearn.problem_transform.cc.html) of scikit-learn [Random Forests](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) trained to perform multilabel token classification on text represented with the 100-dimension custom FastText embeddings (see `custom_fasttext/fasttext_cbow_100d.model` above), assigning *Gendered-Pronoun*, *Gendered-Role*, and *Generalization* labels to tokens
+* `.joblib`:
+    * Note: the *Gendered-Pronoun*, *Gendered-Role*, and *Generalization* labels are deduplicated when associated with a description, so even if multiple tokens in a description have one of these labels, the description will only have one instance of it
 
 ## transform_docs/
 This directory contains a pre-trained scikit-learn models to transform description (document) data for input into classification models.
