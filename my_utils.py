@@ -135,7 +135,7 @@ text will be joined to create a new column named text.
 - Function output: a pandas DataFrame with one row per token and columns for
 row unique identifiers, tokens, and token unique identifiers.
 '''
-def getTokenDF(df, cols, row_id="record_id"):
+def getTokenDF(df, cols, row_id="description_id"):
     df = df.fillna("") # Replace NaN (empty) values with an empty string
     if len(cols) > 1:
         col_name = "text"
@@ -158,7 +158,7 @@ def getTokenDF(df, cols, row_id="record_id"):
         last_id = last_id+len(tokens)
         token_id_col += [token_ids]
         token_col += [tokens]
-    new_df = pd.DataFrame({"record_id": incl_row_ids, "token_id": token_id_col, "token": token_col})
+    new_df = pd.DataFrame({"description_id": incl_row_ids, "token_id": token_id_col, "token": token_col})
     new_df = new_df.explode(["token_id", "token"])
 
     return new_df
@@ -176,3 +176,33 @@ def getFeatures(df, embedding_model, feature_cols=["token_id", "token"]):
     # Make FastText feature matrix
     feature_list = [embedding_model.wv[token.lower()] for token_id,token in feature_data]
     return np.array(feature_list)
+
+
+'''
+Implode a DataFrame (opposite of df.explode()).
+- Function inputs: a DataFrame and a non-empty list of columns by which to group the
+rest of the data.
+- Function output: a DataFrame where the values in all columns except those included as 
+function inputs are aggregated as a list per row (so a cell may have repeated values).
+'''
+def implodeDataFrame(df, cols_to_groupby):
+    cols_to_agg = list(df.columns)
+    for col in cols_to_groupby:
+        cols_to_agg.remove(col)
+    agg_dict = dict.fromkeys(cols_to_agg, lambda x: x.tolist())
+    return df.groupby(cols_to_groupby).agg(agg_dict).reset_index().set_index(cols_to_groupby)
+
+
+'''
+Implode a DataFrame (opposite of df.explode()).
+- Function inputs: a DataFrame and a non-empty list of columns by which to group the
+rest of the data.
+- Function output: a DataFrame where the values in all columns except those included as 
+function inputs are aggregated as a set per row (so there are NO repeated values in a cell).
+'''
+def implodeDataFrameUnique(df, cols_to_groupby):
+    cols_to_agg = list(df.columns)
+    for col in cols_to_groupby:
+        cols_to_agg.remove(col)
+    agg_dict = dict.fromkeys(cols_to_agg, lambda x: list(set(x)))
+    return df.groupby(cols_to_groupby).agg(agg_dict).reset_index().set_index(cols_to_groupby)
