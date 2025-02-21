@@ -127,3 +127,26 @@ def implodeDataFrameUnique(df, cols_to_groupby):
         cols_to_agg.remove(col)
     agg_dict = dict.fromkeys(cols_to_agg, lambda x: list(set(x)))
     return df.groupby(cols_to_groupby).agg(agg_dict).reset_index().set_index(cols_to_groupby)
+
+
+'''
+Calculate precision, recall, and F1 score based on the input
+true positive count, false positive count, and false negative count.
+'''
+def precisionRecallF1(tp_count, fp_count, fn_count):
+    # Precision Score: ability of classifier not to label a sample that should be negative as positive; best possible = 1, worst possible = 0
+    if tp_count+fp_count == 0:
+        precision = 0
+    else:
+        precision = (tp_count/(tp_count+fp_count))
+    # Recall Score: ability of classifier to find all positive samples; best possible = 1, worst possible = 0
+    if tp_count+fn_count == 0:
+        recall = 0
+    else:
+        recall = (tp_count/(tp_count+fn_count))
+    # F1 Score: harmonic mean of precision and recall; best possible = 1, worst possible = 0
+    if (precision+recall == 0):
+        f_1 = 0
+    else:
+        f_1 = (2*precision*recall)/(precision+recall)
+    return precision, recall, f_1
