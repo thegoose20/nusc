@@ -41,21 +41,21 @@ Output a list of dictionaries, where each key is a tag name and each value is th
 description associated with that tag.  Each dictionary corresponds to one fonds, or 
 archival collection (the highest level of an archival hieararchy).
 '''
-def extractMetadata(xml_path):
+# Define tags to extract metadata from by default
+tags = [
+        "unittitle", "unitid", "unitdate", "bioghist", "scopecontent", 
+        "processinfo", "langmaterial", "controlaccess"
+    ]
+
+def extractMetadata(xml_path, metadata_field_tags=tags):
     # Create an ElementTree tree and get the tree's root
     content = urllib.request.urlopen(xml_path)
     xmlTree = ET.parse(content)
     root = xmlTree.getroot()
 
-    # Extract metadata descriptions from the below-specified fields in the tree
-    metadata_field_tags = [
-        "unittitle", "unitid", "unitdate", "bioghist", "scopecontent", 
-        "processinfo", "langmaterial", "controlaccess"
-    ]
-    d_descs = {
-        'unittitle': "", 'unitid': "", 'unitdate': "", 'bioghist': "", 'scopecontent': "", 
-        'processinfo': "", 'langmaterial': "", 'controlaccess': ""
-    }
+    # Extract metadata descriptions from the input metadata fields
+    # (meaning extract the text between XML tags with the input names)
+    d_descs = dict.fromkeys(metadata_field_tags, "")
     list_metadata = []
     for child in xmlTree.iter():
         tag = child.tag
@@ -63,10 +63,7 @@ def extractMetadata(xml_path):
         # thus far and start a new d_descs dictionary
         if tag == "c":
             list_metadata += [d_descs]
-            d_descs = {
-                'unittitle': "", 'unitid': "", 'unitdate': "", 'bioghist': "", 'scopecontent': "", 
-                'processinfo': "", 'langmaterial': "", 'controlaccess': ""
-            }
+            d_descs = dict.fromkeys(metadata_field_tags, "")
         elif tag in metadata_field_tags:
             all_text = getAllText(child, tag)
             d_descs[tag] = all_text
