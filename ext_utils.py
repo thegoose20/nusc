@@ -1,9 +1,64 @@
 # Functions for Data Extraction
 
 import xml.etree.ElementTree as ET
+from lxml import etree
 import urllib.request
 import pandas as pd
 import numpy as np
+
+
+'''
+Create an ElementTree from a URL and return the tree.
+'''
+def getTreeFromUrl(url):
+    content = urllib.request.urlopen(url)
+    parser = etree.XMLParser(recover=True)  # Use recover to try to fix broken XML
+    tree = etree.parse(content, parser)
+    return tree
+
+
+'''
+Given an OAI URL, iteratively extract the URLs stored in the input tag and
+return a list of those URLs. 
+'''
+def getTextFromTag(more, catalog_url, id_tag): 
+    resumptionToken = ""
+    urls = []
+    # archiveMetadataUrlWithPrefix = archiveMetadataUrlShort + startingPrefix
+    tree = getTreeFromUrl(catalog_url)
+    # urls.append(getTextBeneathTag(root, id_tag))
+    for child in tree.iter():
+        if child.tag == id_tag:
+            if "https://" in child.text:
+                urls += [child.text]
+        elif child.tag == "resumptionToken":
+            resumptionToken = child.text
+    # resumptionToken = getTextBeneathTag(root, "resumptionToken")
+
+    if len(resumptionToken) == 0:
+        more = False
+    i = 1
+
+    while more:
+        catalog_url_with_token = catalog_url + "resumptionToken=" + resumptionToken[0]
+        resumptionToken = ""
+        tree = getTreeFromUrl(catalog_url_with_token)
+        for child in tree.iter():
+            if child.tag == id_tag:
+                if "https://" in child.text:
+                    urls += [child.text]
+            elif child.tag == "resumptionToken":
+                resumptionToken = child.text
+            else:
+                continue
+
+        if len(resumptionToken) == 0:
+            more = False
+        i += 1
+
+    print(str(i) + " resumption tokens")
+    return urls
+
 
 '''
 Given a child in an ElementTree tree, a tag name, and a list of characters to replace 
@@ -43,8 +98,8 @@ archival collection (the highest level of an archival hieararchy).
 '''
 # Define tags to extract metadata from by default
 tags = [
-        "unittitle", "unitid", "unitdate", "bioghist", "scopecontent", 
-        "processinfo", "langmaterial", "controlaccess"
+        "eadid", "unittitle", "unitid", "unitdate", "bioghist", 
+        "scopecontent", "processinfo", "langmaterial", "controlaccess"
     ]
 
 def extractMetadata(xml_path, metadata_field_tags=tags):
