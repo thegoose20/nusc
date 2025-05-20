@@ -7,45 +7,6 @@ import sklearn.metrics
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
-'''
-Given a DataFrame, create a new DataFrame with a subset of the data 
-in new columns, where all text to be classified from the original DataFrame
-is combined into a single column in the new DataFrame.
-Input: a DataFrame, a list of the names of columns in that DataFrame 
-with text that should be put into a single column, and the name (as a string)
-of the column with the unique identifiers for each row in the DataFrame.
-Output: a DataFrame with four columns, "eadid," "rowid," "field" (for the 
-name of the metadata field from with a row's text was extracted), and "doc" 
-(for the extracted text).  Any empty (NaN) "doc" rows are removed before the 
-final DataFrame is returned.
-'''
-def transformForClassification(df, text_cols, rowid):
-    unique_eadids = list(df["eadid"].unique())
-    eadid_col, rowid_col, doc_col, field_col = [], [], [], []
-    for eadid in unique_eadids:
-        subdf = df.loc[df["eadid"] == eadid]
-        for text_col in text_cols:
-            docs = list(subdf[text_col])
-            doc_eadids = [eadid]*len(docs)
-            rowids = list(subdf[rowid])
-            fields = [text_col]*len(docs)
-            assert len(docs) == len(rowids)
-            assert len(fields) == len(rowids)
-            assert len(docs) == len(fields)
-            eadid_col += doc_eadids
-            doc_col += docs
-            rowid_col += rowids
-            field_col += fields
-            
-    doc_df = pd.DataFrame({
-        "eadid":eadid_col, "rowid":rowid_col, "field":field_col, "doc":doc_col
-        })
-
-    # Remove any rows with an empty (NaN) doc (description)
-    doc_df = doc_df[~doc_df["doc"].isna()]
-    
-    return doc_df
-
 
 '''
 Prepare the data for token classification

@@ -18,46 +18,50 @@ def getTreeFromUrl(url):
 
 
 '''
-Given an OAI URL, iteratively extract the URLs stored in the input tag and
-return a list of those URLs. 
+Given an OAI URL, iteratively extract the text and URLs stored in the 
+input tag and return a DataFrame with one column for the text and one
+for the URLs.
 '''
 def getTextFromTag(more, catalog_url, id_tag): 
     resumptionToken = ""
-    urls = []
-    # archiveMetadataUrlWithPrefix = archiveMetadataUrlShort + startingPrefix
+    urls, eadids = [], []
     tree = getTreeFromUrl(catalog_url)
-    # urls.append(getTextBeneathTag(root, id_tag))
     for child in tree.iter():
         if child.tag == id_tag:
             if "https://" in child.text:
                 urls += [child.text]
-        elif child.tag == "resumptionToken":
+            else:
+                eadids += [child.text]
+        elif "resumptionToken" in child.tag:
             resumptionToken = child.text
-    # resumptionToken = getTextBeneathTag(root, "resumptionToken")
 
     if len(resumptionToken) == 0:
         more = False
-    i = 1
+    else:
+        i = 1
 
     while more:
-        catalog_url_with_token = catalog_url + "resumptionToken=" + resumptionToken[0]
+        catalog_url_with_token = catalog_url + "&resumptionToken=" + resumptionToken
         resumptionToken = ""
         tree = getTreeFromUrl(catalog_url_with_token)
         for child in tree.iter():
             if child.tag == id_tag:
                 if "https://" in child.text:
                     urls += [child.text]
-            elif child.tag == "resumptionToken":
+                else:
+                    eadids += [child.text]
+            elif "resumptionToken" in child.tag:
                 resumptionToken = child.text
             else:
                 continue
 
         if len(resumptionToken) == 0:
             more = False
-        i += 1
+        else:
+            i += 1
 
     print(str(i) + " resumption tokens")
-    return urls
+    return pd.DataFrame({"eadid":eadids, "url":urls})
 
 
 '''
@@ -136,3 +140,42 @@ def extractMetadata(xml_path, metadata_field_tags=tags):
     return list_metadata
 
 
+'''
+Given a DataFrame, create a new DataFrame with a subset of the data 
+in new columns, where all text to be classified, or otherwise analyzed,
+from the original DataFrame is combined into a single column in the new
+DataFrame.
+Input: a DataFrame, a list of the names of columns in that DataFrame 
+with text that should be put into a single column, and the name (as a string)
+of the column with the unique identifiers for each row in the DataFrame.
+Output: a DataFrame with four columns, "eadid," "rowid," "field" (for the 
+name of the metadata field from with a row's text was extracted), and "doc" 
+(for the extracted text).  Any empty (NaN) "doc" rows are removed before the 
+final DataFrame is returned.
+'''
+def consolidateText(df, text_cols, rowid):
+    unique_eadids = list(df["eadid"].unique())
+    eadid_col, rowid_col, doc_col, field_col = [], [], [], []
+    for eadid in unique_eadids:
+        subdf = df.loc[df["eadid"] == eadid]
+        for text_col in text_cols:
+            docs = list(subdf[text_col])
+            doc_eadids = [eadid]*len(docs)
+            rowids = list(subdf[rowid])
+            fields = [text_col]*len(docs)
+            assert len(docs) == len(rowids)
+            assert len(fields) == len(rowids)
+            assert len(docs) == len(fields)
+            eadid_col += doc_eadids
+            doc_col += docs
+            rowid_col += rowids
+            field_col += fields
+            
+    doc_df = pd.DataFrame({
+        "eadid":eadid_col, "rowid":rowid_col, "field":field_col, "doc":doc_col
+        })
+
+    # Remove any rows with an empty (NaN) doc (description)
+    doc_df = doc_df[~doc_df["doc"].isna()]
+    
+    return doc_df
