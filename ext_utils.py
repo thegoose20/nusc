@@ -92,6 +92,7 @@ def getAllText(child, tag, chars_to_replace=chars):
     return final_text
 
 
+
 '''
 Given a URL to catalog metadata in Encoded Archival Description format (an XML format)
 that is ISAD(G) 2 compliant, extract the descriptions (text) between unittitle, unitid,
@@ -110,7 +111,6 @@ def extractMetadata(xml_path, metadata_field_tags=tags):
     # Create an ElementTree tree and get the tree's root
     content = urllib.request.urlopen(xml_path)
     xmlTree = ET.parse(content)
-    root = xmlTree.getroot()
 
     # Extract metadata descriptions from the input metadata fields
     # (meaning extract the text between XML tags with the input names)
@@ -179,3 +179,69 @@ def consolidateText(df, text_cols, rowid):
     doc_df = doc_df[~doc_df["doc"].isna()]
     
     return doc_df
+
+
+'''
+Input:  part of or the entirety of a tag name below which you want to get text 
+Output: a list of text between tags contained within the input tag_name, 
+        with one list element per tagName instance
+'''
+def getTextBeneathTag(root, tag_name):
+    text_list = []
+    for child in root.iter():
+        tag = child.tag
+        if tag_name in tag:
+            text_elem = ""
+            for subchild_text in child.itertext():
+                text_elem = text_elem + subchild_text
+            text_list.append(text_elem)
+    return text_list
+
+
+'''
+Input:  binary value, url for harvesting metadata, starting prefix for the end of the url, 
+        and lists of metadata fields to gather
+Output: lists of strings of the gathered metadata fields' descriptions, with one string 
+        per fonds, series, and item in the catalog
+'''
+def getDescriptiveMetadata(more, archiveMetadataUrlShort, startingPrefix, ut, ui, sc, bh, pi):    #eadid
+    print("Extracting descriptive metadata from", archiveMetadataUrlShort)
+
+    archiveMetadataUrlWithPrefix = archiveMetadataUrlShort + startingPrefix
+    root = getTreeFromUrl(archiveMetadataUrlWithPrefix).getroot()
+    # eadid.append(getTextBeneathTag(root, "eadid"))
+    ut.append(getTextBeneathTag(root, "unittitle"))
+    ui.append(getTextBeneathTag(root, "unitid"))
+    sc.append(getTextBeneathTag(root, "scopecontent"))
+    bh.append(getTextBeneathTag(root, "bioghist"))
+    pi.append(getTextBeneathTag(root, "processinfo"))
+    resumptionToken = getTextBeneathTag(root, "resumptionToken")
+
+    if len(resumptionToken) == 0:
+        more = False
+    else:
+        i = 1
+
+    while more:
+        print("Continuing to extract...")
+        archiveMetadataUrlWithToken = archiveMetadataUrlShort + "resumptionToken=" + resumptionToken[0]
+        root = getTreeFromUrl(archiveMetadataUrlWithToken).getroot()
+        # eadid.append(getTextBeneathTag(root, "eadid"))
+        ut.append(getTextBeneathTag(root, "unittitle"))
+        ui.append(getTextBeneathTag(root, "unitid"))
+        sc.append(getTextBeneathTag(root, "scopecontent"))
+        bh.append(getTextBeneathTag(root, "bioghist"))
+        pi.append(getTextBeneathTag(root, "processinfo"))
+        resumptionToken = getTextBeneathTag(root, "resumptionToken")
+        if len(resumptionToken) == 0:
+            more = False
+        else:
+            i += 1
+        
+        if (len(ut)) >= 37000: #>= 99000
+            more = False
+            print("Stopping extraction at similar number of descriptions as available in Newcastle's archival catalog.")
+            # return ut, ui, sc, bh, pi
+
+    print("Extraction complete after", str(i) + " resumption tokens!")
+    return ut, ui, sc, bh, pi #eadid, 

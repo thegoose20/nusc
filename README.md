@@ -2,7 +2,7 @@
 Project funded by The National Archives' Research and Innovation Grant with Newcastle University Special Collections
 
 ***
-#### Table of Contents
+### Table of Contents
 
 [Project Overview](#project-overview)
 
