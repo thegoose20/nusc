@@ -1,0 +1,11 @@
+name: nusc
+channels:
+  - defaults
+dependencies:
+  - jupyterlab
+  - pandas
+  - anaconda::joblib
+  - conda-forge::nltk
+  - conda-forge::lxml
+  - conda-forge::matplotlib
+prefix: /Users/lucyhavens/miniconda3/envs/nusc

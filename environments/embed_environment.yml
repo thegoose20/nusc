@@ -1,0 +1,8 @@
+name: gensim-env
+channels:
+  - defaults
+dependencies:
+  - gensim
+  - pandas
+  - ipykernel
+prefix: /Users/lucyhavens/miniconda3/envs/gensim-env
