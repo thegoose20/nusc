@@ -1,4 +1,6 @@
 data/index.md
+data/analysis/nusc_ead_descs_pos_tags.csv
+data/analysis/nusc_ead_descs_tokenized.csv
 data/classified/
 data/coded_and_classified/
 data/extracted/
