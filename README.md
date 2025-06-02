@@ -1,5 +1,5 @@
-# nusc
-Project funded by The National Archives' Research and Innovation Grant with Newcastle University Special Collections
+# Discovering Gender Bias in Archival Curation
+A project funded by The National Archives' Research and Innovation Grant with Newcastle University Special Collections.
 
 ***
 ### Table of Contents
@@ -15,7 +15,7 @@ Project funded by The National Archives' Research and Innovation Grant with Newc
 ***
 
 ## Project Overview
-Newcastle University Special Collections (NUSC) has been engaged in efforts to mitigate bias in its catalogues and curative practices through ‘Special for Everyone’, a project launched in 2020. This project sought to apply machine learning models developed for identifying gender biased language for the archives sector, specifically text classifiers trained on descriptive metadata from the University of Edinburgh's archival catalog ([Havens et al., 2025](https://doi.org/10.1145/3706598.3713217)).  Experiments with the models coupled with manual reviews indicated that NUSC's descriptive metadata didn't have much gender biased language, so in the second phase of the project, broader computational analytics were performed to investigate differences between the language of Edinburgh and Newcastle's descriptive metadata.
+Newcastle University Special Collections (NUSC) has been engaged in efforts to mitigate bias in its catalogues and curative practices through [Special for Everyone](), a project launched in 2020. This project sought to apply machine learning models developed for identifying gender biased language for the archives sector, specifically text classifiers trained on descriptive metadata from the University of Edinburgh's archival catalog ([Havens et al., 2025](https://doi.org/10.1145/3706598.3713217)).  Experiments with the models coupled with manual reviews indicated that NUSC's descriptive metadata didn't have much gender biased language, so in the second phase of the project, broader computational analytics were performed to investigate differences between the language of Edinburgh and Newcastle's descriptive metadata.
 
 ## Data
 The primary data source for this repo is from the catalogs of [Newcastle University Special Collections & Archives](https://specialcollections.ncl.ac.uk).  EAD XML records were extracted in May 2025, with the analysis focusing on the descriptive metadata from four fields: *Title*, *Biographical / Historical*, *Scope and Contents*, and *Processing Information*.  Additionally, transcriptions of the Gertrude Bell Archive's material were extracted (also XML but not in EAD).  Analysis of the Bell descriptive metadata focused on three fields: *Title*, *Description*, and *Extent and Medium*.
@@ -39,13 +39,25 @@ git clone https://github.com/thegoose20/nusc.git
 cd nusc
 ```
 
-**Step 3:** Create a virtual environment from the environment file provided in the repo.
+**Step 3:** Create a virtual environment from an environment file in the `environments` directory:
+
+  * For notebooks numbered 1-5 and 8-10, use environment.yml (or macos_environment.yml if on a Mac OS)
+  * For notebooks numbered 6 and 7, use gbias_environment.yml (or macos_gbias_environment.yml if on a Mac OS)
+  * For notebook 11, use embed_environment.yml (or macos_embed_environment.yml if on a Mac OS)
 
 ```
-conda env create -f environment.yml
+conda env create -f environments/[REPLACE-WITH-CHOSEN-FILE]
+```
+For example:
+```
+conda env create -f environments/environment.yml
 ```
 
-**Step 4:** Activate your newly created virtual environment.
+**Step 4:** Activate your newly created virtual environment (the name of the environment is at the top of each YML file).
+```
+conda activate [REPLACE-WITH-ENVIRONMENT-NAME]
+```
+For example:
 ```
 conda activate nusc
 ```
@@ -67,5 +79,7 @@ Re-activate the environment by running the command in step 4.
 
 
 ## Related Resources
-* [gender-bias](https://github.com/thegoose20/gender-bias) - *repo with code training, developing, and testing the machine learning models*
+* [Newcastle University Special Collections & Archives](https://www.ncl.ac.uk/library/special-collections/)
+* Newcastle University's [Special for Everyone]() project
+* [gender-bias](https://github.com/thegoose20/gender-bias) - the training, developing, and testing of classification models used in this repo
 * Lucy Havens, Benjamin Bach, Melissa Terras, and Beatrice Alex. 2025. Investigating the Capabilities and Limitations of Machine Learning for Identifying Bias in English Language Data with Information and Heritage Professionals. In *Proceedings of the 2025 CHI Conference on Human Factors in Computing Systems (CHI '25).* Association for Computing Machinery, New York, NY, USA, Article 573, 1–22. [https://doi.org/10.1145/3706598.3713217](https://doi.org/10.1145/3706598.3713217)
