@@ -1,6 +1,8 @@
 data/
 models/embeddings/
 embedding_models/nusc_word2vec_cbow_100d_context6.model
+embedding_models/nusc_word2vec_cbow_100d_context6_min5.model
+embedding_models/nusc_word2vec_cbow_100d_context8_min3.model
 .ipynb_checkpoints/
 __pycache__/
 .DS_Store
