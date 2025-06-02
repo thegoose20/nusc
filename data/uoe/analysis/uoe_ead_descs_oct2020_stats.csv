@@ -1,0 +1,7 @@
+,sentences_per_description,tokens_per_description,tokens_per_sentence
+mean,1.5015494378783512,19.55300518881522,13.021885723884717
+median,1.0,10.0,9.0
+standard_deviation,5.377457449631,97.62714507877716,14.97473738394984
+minimum,1.0,1.0,1.0
+maximum,742.0,14097.0,551.0
+total,41671.0,542635.0,542635.0
